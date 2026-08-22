@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Firing Range â€” Tactical Simulator</title>
+  <meta name="description" content="Professional first-person tactical firing range simulator. Train with AK-47, Pistol, and MP5 in a realistic 3D environment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+</head>
+<body>
+
+  <!-- ============================================================
+       LANDING PAGE
+       ============================================================ -->
+  <div id="landing" class="landing">
+    <div class="landing__bg-grid"></div>
+    <div class="landing__scanlines"></div>
+
+    <div class="landing__content">
+      <div class="landing__badge-wrap">
+        <span class="landing__badge">&#9673; TACTICAL SIMULATION</span>
+        <span class="landing__badge-line"></span>
+      </div>
+
+      <h1 class="landing__title">
+        FIRING<br/><span class="landing__title-accent">RANGE</span>
+      </h1>
+
+      <p class="landing__subtitle">
+        First-person tactical training simulator. Master accuracy across
+        three weapon classes in a professional live-fire environment.
+      </p>
+
+      <ul class="landing__features">
+        <li class="landing__feature">
+          <span class="landing__feature-icon">ðŸ”«</span>
+          <span>AK-47 Assault Rifle</span>
+        </li>
+        <li class="landing__feature">
+          <span class="landing__feature-icon">ðŸ”«</span>
+          <span>9mm Pistol</span>
+        </li>
+        <li class="landing__feature">
+          <span class="landing__feature-icon">ðŸ”«</span>
+          <span>MP5 Submachine Gun</span>
+        </li>
+      </ul>
+
+      <div class="landing__stats">
+        <div class="landing__stat">
+          <span class="landing__stat-val">3</span>
+          <span class="landing__stat-label">Weapons</span>
+        </div>
+        <div class="landing__stat-sep"></div>
+        <div class="landing__stat">
+          <span class="landing__stat-val">3</span>
+          <span class="landing__stat-label">Target Lines</span>
+        </div>
+        <div class="landing__stat-sep"></div>
+        <div class="landing__stat">
+          <span class="landing__stat-val">âˆž</span>
+          <span class="landing__stat-label">Reserve Ammo</span>
+        </div>
+      </div>
+
+      <button id="start-btn" class="landing__cta" type="button">
+        <span class="landing__cta-icon">â–¶</span>
+        ENTER RANGE
+      </button>
+
+      <p class="landing__hint">
+        <kbd>WASD</kbd> Move &nbsp;Â·&nbsp; <kbd>Mouse</kbd> Aim &nbsp;Â·&nbsp;
+        <kbd>LMB</kbd> Fire &nbsp;Â·&nbsp; <kbd>R</kbd> Reload &nbsp;Â·&nbsp;
+        <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd> Weapons &nbsp;Â·&nbsp;
+        <kbd>Shift</kbd> Sprint
+      </p>
+    </div>
+  </div>
+
+  <!-- Loading overlay -->
+  <div id="loading" class="loading hidden">
+    <div class="loading__icon">âŠ™</div>
+    <div class="loading__bar"><div class="loading__bar-fill"></div></div>
+    <p class="loading__text">INITIALIZING RANGE...</p>
+  </div>
+
+  <!-- ============================================================
+       GAME CANVAS + HUD
+       ============================================================ -->
+  <div id="game-container" class="game-container hidden">
+    <canvas id="game-canvas"></canvas>
+
+    <!-- â”€â”€ HUD overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div id="hud" class="hud">
+
+      <!-- Tactical crosshair (4-gap style) -->
+      <div id="hud-crosshair" class="hud__crosshair" aria-hidden="true">
+        <div class="hud__ch-top"></div>
+        <div class="hud__ch-bottom"></div>
+        <div class="hud__ch-left"></div>
+        <div class="hud__ch-right"></div>
+        <div class="hud__ch-dot"></div>
+      </div>
+
+      <!-- Hit marker (separate from crosshair) -->
+      <div id="hud-hitmarker" class="hud__hitmarker" aria-hidden="true">
+        <div class="hud__hm-tl"></div>
+        <div class="hud__hm-tr"></div>
+        <div class="hud__hm-bl"></div>
+        <div class="hud__hm-br"></div>
+      </div>
+
+      <!-- RELOAD bar -->
+      <div id="hud-reload" class="hud__reload hidden">
+        <span class="hud__reload-icon">â†º</span> RELOADING
+      </div>
+
+      <!-- Pointer lock prompt -->
+      <div id="hud-prompt" class="hud__prompt">
+        <span class="hud__prompt-icon">âŠ•</span> CLICK TO CAPTURE MOUSE
+      </div>
+
+      <!-- â”€â”€ Bottom HUD bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <div class="hud__bottom">
+
+        <!-- Left: Score -->
+        <div class="hud__panel hud__panel--left">
+          <div class="hud__score-block">
+            <span class="hud__label">SCORE</span>
+            <span id="hud-score" class="hud__value hud__score-val">0</span>
+          </div>
+        </div>
+
+        <!-- Center: Ammo -->
+        <div class="hud__panel hud__panel--center">
+          <div class="hud__ammo-block">
+            <span id="hud-ammo-current" class="hud__ammo-current">30</span>
+            <span class="hud__ammo-sep">/</span>
+            <span id="hud-ammo-reserve" class="hud__ammo-reserve">90</span>
+          </div>
+          <span class="hud__label">AMMUNITION</span>
+        </div>
+
+        <!-- Right: Weapon selector -->
+        <div class="hud__panel hud__panel--right">
+          <div class="hud__weapon-selector">
+            <button class="hud__weapon-tab hud__weapon-tab--active" data-index="0">
+              <span class="hud__tab-num">1</span>
+              <span class="hud__tab-name">AK-47</span>
+            </button>
+            <button class="hud__weapon-tab" data-index="1">
+              <span class="hud__tab-num">2</span>
+              <span class="hud__tab-name">PISTOL</span>
+            </button>
+            <button class="hud__weapon-tab" data-index="2">
+              <span class="hud__tab-num">3</span>
+              <span class="hud__tab-name">MP5</span>
+            </button>
+            <button class="hud__weapon-tab" data-index="3">
+              <span class="hud__tab-num">4</span>
+              <span class="hud__tab-name">SHOTGUN</span>
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Hit / kill feed (top-right) -->
+      <div id="hud-feed" class="hud__feed"></div>
+
+      <!-- Controls legend (top-left corner) -->
+      <div class="hud__controls">
+        <span>WASD Â· Move</span>
+        <span>LMB Â· Fire</span>
+        <span>RMB Â· Aim Down Sights</span>
+        <span>R Â· Reload</span>
+        <span>1/2/3 Â· Weapons</span>
+        <span>Shift Â· Sprint</span>
+      </div>
+
+    </div>
+
+    <!-- â”€â”€ Pause Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <div id="pause-menu" class="pause-menu hidden">
+      <div class="pause-menu__content">
+        <h2 class="pause-menu__title">PAUSED</h2>
+        <div class="pause-menu__buttons">
+          <button id="btn-resume" class="pause-menu__btn">RESUME</button>
+          <button id="btn-exit" class="pause-menu__btn pause-menu__btn--danger">EXIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/js/main.js"></script>
+</body>
+</html>
+
