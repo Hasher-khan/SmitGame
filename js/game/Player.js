@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Player.js â€” First-Person Controller
  *
  * Features:
@@ -91,6 +91,7 @@ export class Player {
       if (e.code === 'Digit2') this.onWeaponSwitch?.(1);
       if (e.code === 'Digit3') this.onWeaponSwitch?.(2);
       if (e.code === 'Digit4') this.onWeaponSwitch?.(3);
+      if (e.code === 'Digit5') this.onWeaponSwitch?.(4);
     };
 
     this._onKeyUp = (e) => {

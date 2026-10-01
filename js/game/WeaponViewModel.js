@@ -52,6 +52,7 @@ export class WeaponViewModel {
       this._buildRig('pistol', this._buildPistol()),
       this._buildRig('smg', this._buildSMG()),
       this._buildRig('shotgun', this._buildShotgun()),
+      this._buildRig('mg', this._buildMachineGun()),
     ];
 
     this.currentIndex = 0;
@@ -199,6 +200,9 @@ export class WeaponViewModel {
     } else if (w.name === 'shotgun') {
       adsY = -0.160;
       adsZ = -0.24;
+    } else if (w.name === 'mg') {
+      adsY = -0.160;
+      adsZ = -0.22;
     }
 
     // Blend positions
@@ -612,6 +616,95 @@ export class WeaponViewModel {
     const muzzle = new THREE.Object3D();
     muzzle.name = 'muzzle';
     muzzle.position.set(0, 0.040, -0.78);
+    g.add(muzzle);
+    return g;
+  }
+
+  _buildMachineGun() {
+    const g        = new THREE.Group();
+    const gunMetal = mat(0x282a2e, { metalness: 0.94, roughness: 0.20 });
+    const gunDark  = mat(0x121316, { metalness: 0.96, roughness: 0.16 });
+    const chrome   = mat(0xaaaaaa, { metalness: 0.98, roughness: 0.06 });
+    const ammoBox  = mat(0x2d3a1e, { metalness: 0.35, roughness: 0.65 }); // Military Olive-Drab 100-Round Drum Box
+    const brass    = mat(0xeab308, { metalness: 0.92, roughness: 0.15 });
+
+    // ── 1. Main Receiver (Heavy Box Frame) ───────────────────────
+    g.add(this._mesh(new THREE.BoxGeometry(0.068, 0.12, 0.52), gunMetal, [0, 0.005, -0.05]));
+    // Topfeed tray cover with hinge joint
+    g.add(this._mesh(new THREE.BoxGeometry(0.060, 0.028, 0.44), gunDark, [0, 0.070, -0.05]));
+    // Top Picatinny Rail
+    g.add(this._mesh(new THREE.BoxGeometry(0.024, 0.012, 0.38), gunMetal, [0, 0.088, -0.05]));
+    for (let i = 0; i < 12; i++) {
+      g.add(this._mesh(new THREE.BoxGeometry(0.028, 0.004, 0.008), gunDark, [0, 0.096, -0.22 + i * 0.030]));
+    }
+
+    // ── 2. Massive 100-Round Ammo Drum Container (Side-Fed) ───────
+    // Round Heavy Drum
+    const drum = this._mesh(new THREE.CylinderGeometry(0.075, 0.075, 0.12, 20), ammoBox, [-0.038, -0.11, -0.04], [0, 0, Math.PI / 2]);
+    g.add(drum);
+    // Drum metal rim cap
+    g.add(this._mesh(new THREE.CylinderGeometry(0.078, 0.078, 0.015, 20), gunDark, [-0.098, -0.11, -0.04], [0, 0, Math.PI / 2]));
+    
+    // Exposed Gold Bullet Belt Feed (Link Strip into Feed Tray)
+    for (let b = 0; b < 4; b++) {
+      g.add(this._mesh(new THREE.CylinderGeometry(0.008, 0.008, 0.032, 10), brass, [0.018 + b * 0.008, -0.025 + b * 0.008, -0.05], [0, 0, Math.PI / 3]));
+      g.add(this._mesh(new THREE.BoxGeometry(0.006, 0.014, 0.008), gunDark, [0.018 + b * 0.008, -0.025 + b * 0.008, -0.05]));
+    }
+
+    // ── 3. Heavy Vented Barrel & Heat Shield Shroud ────────────────
+    // Outer heat shroud
+    g.add(this._mesh(new THREE.CylinderGeometry(0.025, 0.022, 0.44, 16), gunDark, [0, 0.035, -0.48], [Math.PI / 2, 0, 0]));
+    // Heat vent cutouts
+    for (let v = 0; v < 6; v++) {
+      g.add(this._mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.055, 8), gunMetal, [0.024, 0.035, -0.32 - v * 0.055], [0, 0, Math.PI / 2]));
+    }
+    // Extended inner heavy barrel
+    g.add(this._mesh(new THREE.CylinderGeometry(0.016, 0.016, 0.68, 14), gunMetal, [0, 0.035, -0.60], [Math.PI / 2, 0, 0]));
+    // Gas piston tube underneath
+    g.add(this._mesh(new THREE.CylinderGeometry(0.012, 0.012, 0.50, 10), gunMetal, [0, -0.005, -0.48], [Math.PI / 2, 0, 0]));
+
+    // Heavy Quad-Port Compensator / Muzzle Device
+    g.add(this._mesh(new THREE.CylinderGeometry(0.024, 0.020, 0.080, 14), chrome, [0, 0.035, -0.96], [Math.PI / 2, 0, 0]));
+    for (let p = 0; p < 3; p++) {
+      g.add(this._mesh(new THREE.BoxGeometry(0.048, 0.010, 0.008), gunDark, [0, 0.035, -0.93 - p * 0.018]));
+    }
+
+    // ── 4. Tactical Top Carrying Handle ────────────────────────────
+    g.add(this._mesh(new THREE.BoxGeometry(0.014, 0.060, 0.18), gunDark, [0.042, 0.10, -0.16]));
+    g.add(this._mesh(new THREE.BoxGeometry(0.022, 0.022, 0.20), mat(0x111111, { roughness: 0.90 }), [0.042, 0.13, -0.16]));
+
+    // ── 5. Bipod Assembly (Under Barrel) ───────────────────────────
+    g.add(this._mesh(new THREE.BoxGeometry(0.040, 0.020, 0.030), gunMetal, [0, -0.015, -0.62]));
+    [-0.026, 0.026].forEach((x) => {
+      g.add(this._mesh(new THREE.CylinderGeometry(0.006, 0.005, 0.32, 8), gunMetal, [x, -0.025, -0.62], [0.22, 0, x > 0 ? -0.12 : 0.12]));
+      g.add(this._mesh(new THREE.BoxGeometry(0.014, 0.025, 0.020), mat(0x111111), [x * 1.5, -0.16, -0.68]));
+    });
+
+    // ── 6. Solid Combat Stock & Rubber Buttpad ──────────────────────
+    g.add(this._mesh(new THREE.BoxGeometry(0.052, 0.095, 0.28), gunDark, [0, 0.010, 0.24]));
+    g.add(this._mesh(new THREE.BoxGeometry(0.056, 0.105, 0.025), mat(0x0a0a0a, { roughness: 0.98 }), [0, 0.010, 0.38])); // Heavy Rubber Buttpad
+
+    // ── 7. Ergonomic Pistol Grip ───────────────────────────────────
+    const grip = this._mesh(new THREE.BoxGeometry(0.038, 0.11, 0.052), mat(0x111111, { roughness: 0.95 }), [0, -0.098, 0.065]);
+    grip.rotation.x = 0.35;
+    g.add(grip);
+    for (let i = 0; i < 6; i++) {
+      g.add(this._mesh(new THREE.BoxGeometry(0.040, 0.003, 0.050), mat(0x050505, { roughness: 1 }), [0, -0.055 - i * 0.013, 0.062]));
+    }
+
+    // ── 8. Trigger Guard & Chrome Trigger ──────────────────────────
+    g.add(this._mesh(new THREE.TorusGeometry(0.028, 0.005, 6, 14, Math.PI), gunMetal, [0, -0.055, 0.028], [Math.PI / 2, 0, 0]));
+    g.add(this._mesh(new THREE.BoxGeometry(0.008, 0.028, 0.010), chrome, [0, -0.048, 0.015]));
+
+    // ── 9. Heavy Iron Sights ───────────────────────────────────────
+    g.add(this._mesh(new THREE.BoxGeometry(0.020, 0.040, 0.020), gunDark, [0, 0.065, -0.88]));
+    g.add(this._mesh(new THREE.BoxGeometry(0.006, 0.022, 0.006), chrome, [0, 0.082, -0.88]));
+    g.add(this._mesh(new THREE.BoxGeometry(0.028, 0.032, 0.018), gunDark, [0, 0.092, -0.02]));
+
+    // ── 10. Muzzle Marker (for raycasting tracers & flash) ─────────
+    const muzzle = new THREE.Object3D();
+    muzzle.name = 'muzzle';
+    muzzle.position.set(0, 0.035, -1.00);
     g.add(muzzle);
     return g;
   }

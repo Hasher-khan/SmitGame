@@ -7,6 +7,7 @@ import { AK47 } from './AK47.js';
 import { Pistol } from './Pistol.js';
 import { SMG } from './SMG.js';
 import { Shotgun } from './Shotgun.js';
+import { MachineGun } from './MachineGun.js';
 
 const RAYCAST_RANGE = 100;
 
@@ -19,7 +20,7 @@ export class WeaponSystem {
     this.weaponView = weaponView;
     this.effects = effects;
 
-    this.weapons = [new AK47(), new Pistol(), new SMG(), new Shotgun()];
+    this.weapons = [new AK47(), new Pistol(), new SMG(), new Shotgun(), new MachineGun()];
     this.currentIndex = 0;
     this.currentWeapon = this.weapons[0];
 

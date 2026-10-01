@@ -7,12 +7,14 @@
 
 import * as THREE from 'three';
 import { createSky } from './Sky.js';
+import { CideBug } from './CideBug.js';
 
 export class Environment {
   constructor(scene) {
     this.scene = scene;
     this.targets = [];
     this.targetGroups = [];
+    this.cideBugs = [];
     this.bounds = { minX: -2.2, maxX: 2.2, minZ: 4, maxZ: 62 };
     this.animTargets = [];
   }
@@ -32,6 +34,7 @@ export class Environment {
   getBounds() { return this.bounds; }
   getSpawnPoint() { return new THREE.Vector3(0, 1.65, 6); }
   getTargets() { return this.targets; }
+  getBossBug() { return this.cideBugs[0]; }
 
   update(delta) {
     const t = performance.now() * 0.001;
@@ -45,6 +48,9 @@ export class Environment {
         tgt.position.y = THREE.MathUtils.lerp(tgt.position.y, tgt.userData.restY, delta * 3);
       }
     });
+
+    // Update Cide Bug boss character animations
+    this.cideBugs?.forEach((bug) => bug.update(delta));
 
     // Animate flag wave
     if (this.flagMesh) {
@@ -271,26 +277,12 @@ export class Environment {
   }
 
   _buildTargets() {
-    // 45m Staggered Group (Paper)
-    this._createPaperTarget(-1.2, 42, 1.0, false);
-    this._createPaperTarget(0.5, 46, 0.9, true);
+    this.cideBugs = [];
 
-    // Boot Target at 40m (close-range body silhouette)
-    this._createBootTarget(1.5, 38, 1.0);
-
-    // 65m Staggered Group (Paper & Steel)
-    this._createPaperTarget(-0.8, 62, 0.82, true);
-    this._createSteelTarget(1.2, 68, 0.75);
-
-    // Boot Target at 80m (mid-range silhouette)
-    this._createBootTarget(-1.5, 80, 0.85);
-
-    // 95m Staggered Group (Steel)
-    this._createSteelTarget(-1.0, 92, 0.7);
-    this._createSteelTarget(0.8, 98, 0.65);
-
-    // 120m Far Target (Steel) — long-range challenge
-    this._createSteelTarget(0.0, 118, 0.55);
+    // Single Main CIDE BUG in the center lane (38m) facing the firing shelter
+    const bossBug = new CideBug(this.scene, new THREE.Vector3(0, 0, 38), 2.4);
+    this.cideBugs.push(bossBug);
+    this.targets.push(...bossBug.getTargetMeshes());
   }
 
   _createPaperTarget(x, z, scale, swing) {

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -26,42 +26,41 @@
       </div>
 
       <h1 class="landing__title">
-        FIRING<br/><span class="landing__title-accent">RANGE</span>
+        CODE BUG<br/><span class="landing__title-accent">SHOOTOUT</span>
       </h1>
 
       <p class="landing__subtitle">
-        First-person tactical training simulator. Master accuracy across
-        three weapon classes in a professional live-fire environment.
+        First-person tactical simulator featuring the GIANT cartoon <strong>CODE BUG</strong> boss target! Test your marksmanship with AK-47, Pistol, MP5, and Shotgun.
       </p>
 
       <ul class="landing__features">
         <li class="landing__feature">
-          <span class="landing__feature-icon">ðŸ”«</span>
-          <span>AK-47 Assault Rifle</span>
+          <span class="landing__feature-icon">🐛</span>
+          <span>Giant Cartoon Boss: CODE BUG</span>
         </li>
         <li class="landing__feature">
-          <span class="landing__feature-icon">ðŸ”«</span>
-          <span>9mm Pistol</span>
+          <span class="landing__feature-icon">🎯</span>
+          <span>Big Head Name Badge & Zone Hits</span>
         </li>
         <li class="landing__feature">
-          <span class="landing__feature-icon">ðŸ”«</span>
-          <span>MP5 Submachine Gun</span>
+          <span class="landing__feature-icon">🔫</span>
+          <span>4 Tactical Weapons & Dynamic VFX</span>
         </li>
       </ul>
 
       <div class="landing__stats">
         <div class="landing__stat">
-          <span class="landing__stat-val">3</span>
+          <span class="landing__stat-val">4</span>
           <span class="landing__stat-label">Weapons</span>
         </div>
         <div class="landing__stat-sep"></div>
         <div class="landing__stat">
-          <span class="landing__stat-val">3</span>
-          <span class="landing__stat-label">Target Lines</span>
+          <span class="landing__stat-val">🐛</span>
+          <span class="landing__stat-label">Code Bug Boss</span>
         </div>
         <div class="landing__stat-sep"></div>
         <div class="landing__stat">
-          <span class="landing__stat-val">âˆž</span>
+          <span class="landing__stat-val">∞</span>
           <span class="landing__stat-label">Reserve Ammo</span>
         </div>
       </div>
@@ -94,7 +93,16 @@
     <canvas id="game-canvas"></canvas>
 
     <!-- â”€â”€ HUD overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
-    <div id="hud" class="hud">
+      <!-- Code Bug Boss Health Bar (Top Center) -->
+      <div id="hud-boss-health" class="hud__boss-health">
+        <div class="hud__boss-info">
+          <span class="hud__boss-title">🐛 CODE BUG ULTRA BOSS</span>
+          <span id="hud-boss-hp-text" class="hud__boss-hp-text">10000 / 10000 HP</span>
+        </div>
+        <div class="hud__boss-bar">
+          <div id="hud-boss-fill" class="hud__boss-fill" style="width: 100%;"></div>
+        </div>
+      </div>
 
       <!-- Tactical crosshair (4-gap style) -->
       <div id="hud-crosshair" class="hud__crosshair" aria-hidden="true">
@@ -115,15 +123,15 @@
 
       <!-- RELOAD bar -->
       <div id="hud-reload" class="hud__reload hidden">
-        <span class="hud__reload-icon">â†º</span> RELOADING
+        <span class="hud__reload-icon">⟺</span> RELOADING
       </div>
 
       <!-- Pointer lock prompt -->
       <div id="hud-prompt" class="hud__prompt">
-        <span class="hud__prompt-icon">âŠ•</span> CLICK TO CAPTURE MOUSE
+        <span class="hud__prompt-icon">⊕</span> CLICK TO CAPTURE MOUSE
       </div>
 
-      <!-- â”€â”€ Bottom HUD bar â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+      <!-- ── Bottom HUD bar ───────────────────────────────────────── -->
       <div class="hud__bottom">
 
         <!-- Left: Score -->
@@ -163,6 +171,10 @@
               <span class="hud__tab-num">4</span>
               <span class="hud__tab-name">SHOTGUN</span>
             </button>
+            <button class="hud__weapon-tab" data-index="4">
+              <span class="hud__tab-num">5</span>
+              <span class="hud__tab-name">M.GUN</span>
+            </button>
           </div>
         </div>
 
@@ -173,23 +185,50 @@
 
       <!-- Controls legend (top-left corner) -->
       <div class="hud__controls">
-        <span>WASD Â· Move</span>
-        <span>LMB Â· Fire</span>
-        <span>RMB Â· Aim Down Sights</span>
-        <span>R Â· Reload</span>
-        <span>1/2/3 Â· Weapons</span>
-        <span>Shift Â· Sprint</span>
+        <span>WASD · Move</span>
+        <span>LMB · Fire</span>
+        <span>RMB · Aim Down Sights</span>
+        <span>R · Reload</span>
+        <span>1-5 · Weapons</span>
+        <span>Shift · Sprint</span>
       </div>
 
     </div>
 
-    <!-- â”€â”€ Pause Menu â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ -->
+    <!-- ── Pause Menu ─────────────────────────────────────────── -->
     <div id="pause-menu" class="pause-menu hidden">
       <div class="pause-menu__content">
         <h2 class="pause-menu__title">PAUSED</h2>
         <div class="pause-menu__buttons">
           <button id="btn-resume" class="pause-menu__btn">RESUME</button>
           <button id="btn-exit" class="pause-menu__btn pause-menu__btn--danger">EXIT TO MENU</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Victory Notification Overlay ───────────────────────────── -->
+    <div id="victory-modal" class="victory-modal hidden">
+      <div class="victory-modal__content">
+        <div class="victory-modal__badge">🎯 TARGET DESTROYED</div>
+        <h2 class="victory-modal__title">
+          You are Successfully<br/><span class="victory-modal__title-accent">Kill the Code Bug</span>
+        </h2>
+        <p class="victory-modal__subtitle">Target Code Bug has been eliminated! Fantastic marksmanship!</p>
+        
+        <div class="victory-modal__stats">
+          <div class="victory-modal__stat">
+            <span class="victory-modal__stat-label">FINAL SCORE</span>
+            <span id="victory-final-score" class="victory-modal__stat-val">0</span>
+          </div>
+        </div>
+
+        <div class="victory-modal__buttons">
+          <button id="btn-restart" class="victory-modal__btn victory-modal__btn--restart" type="button">
+            🔄 Start Again
+          </button>
+          <button id="btn-home" class="victory-modal__btn victory-modal__btn--home" type="button">
+            🏠 Go to Home Page
+          </button>
         </div>
       </div>
     </div>

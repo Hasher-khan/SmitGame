@@ -23,6 +23,13 @@ export class HUD {
     this.hitmarkerEl    = document.getElementById('hud-hitmarker');
     this.feedEl         = document.getElementById('hud-feed');
     this.weaponTabs     = document.querySelectorAll('.hud__weapon-tab');
+    
+    // Boss Health Bar & Victory Modal
+    this.bossHpTextEl       = document.getElementById('hud-boss-hp-text');
+    this.bossFillEl         = document.getElementById('hud-boss-fill');
+    this.victoryModalEl     = document.getElementById('victory-modal');
+    this.victoryFinalScoreEl= document.getElementById('victory-final-score');
+
     this.onWeaponSelect = null;
 
     this._hitMarkerTimer = 0;
@@ -34,6 +41,27 @@ export class HUD {
       if (Number.isInteger(index)) this.onWeaponSelect?.(index);
     };
     this.weaponTabs.forEach((tab) => tab.addEventListener('click', this._onWeaponTabClick));
+  }
+
+  updateBossHealth(currentHp, maxHp = 10000) {
+    if (!this.bossFillEl) return;
+    const pct = Math.max(0, Math.min(100, (currentHp / maxHp) * 100));
+    this.bossFillEl.style.width = `${pct}%`;
+    if (this.bossHpTextEl) {
+      this.bossHpTextEl.textContent = `${Math.max(0, Math.ceil(currentHp))} / ${maxHp} HP`;
+    }
+  }
+
+  showVictory(visible, finalScore = 0) {
+    if (!this.victoryModalEl) return;
+    if (visible) {
+      if (this.victoryFinalScoreEl) {
+        this.victoryFinalScoreEl.textContent = finalScore;
+      }
+      this.victoryModalEl.classList.remove('hidden');
+    } else {
+      this.victoryModalEl.classList.add('hidden');
+    }
   }
 
   updateAmmo(current, reserve) {

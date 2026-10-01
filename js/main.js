@@ -92,6 +92,10 @@ const pauseMenu = document.getElementById('pause-menu');
 const btnResume = document.getElementById('btn-resume');
 const btnExit = document.getElementById('btn-exit');
 
+const victoryModal = document.getElementById('victory-modal');
+const btnRestart = document.getElementById('btn-restart');
+const btnHome = document.getElementById('btn-home');
+
 startBtn.addEventListener('click', startSimulation);
 
 document.addEventListener('pointerlockchange', () => {
@@ -102,8 +106,10 @@ document.addEventListener('pointerlockchange', () => {
     prompt.classList.toggle('hidden', isLocked);
   }
 
+  const isVictoryActive = victoryModal && !victoryModal.classList.contains('hidden');
+
   if (game && game.isRunning) {
-    if (isLocked) {
+    if (isLocked || isVictoryActive) {
       pauseMenu.classList.add('hidden');
     } else {
       pauseMenu.classList.remove('hidden');
@@ -116,6 +122,21 @@ btnResume.addEventListener('click', () => {
 });
 
 btnExit.addEventListener('click', () => {
+  exitToHome();
+});
+
+btnRestart?.addEventListener('click', () => {
+  if (game) {
+    game.resetGame();
+    requestPointerLock();
+  }
+});
+
+btnHome?.addEventListener('click', () => {
+  exitToHome();
+});
+
+function exitToHome() {
   if (game) {
     game.dispose();
     game = null;
@@ -123,20 +144,24 @@ btnExit.addEventListener('click', () => {
 
   if (document.pointerLockElement === canvas) document.exitPointerLock();
   
-  // Hide game container and pause menu
+  // Hide game container, pause menu, and victory modal
   gameContainer.classList.add('hidden');
   pauseMenu.classList.add('hidden');
+  victoryModal?.classList.add('hidden');
   
   // Show landing page
   landingEl.classList.remove('fade-out', 'hidden');
   startBtn.textContent = 'ENTER RANGE';
   startBtn.disabled = false;
-  
-  // Clean up if needed (could dispose Three.js resources here if necessary)
-});
+}
 
 canvas.addEventListener('contextmenu', (e) => e.preventDefault());
-canvas.addEventListener('click', requestPointerLock);
+canvas.addEventListener('click', () => {
+  const isVictoryActive = victoryModal && !victoryModal.classList.contains('hidden');
+  if (!isVictoryActive) {
+    requestPointerLock();
+  }
+});
 
 // Resume audio context on any user interaction
 document.addEventListener('click', () => {

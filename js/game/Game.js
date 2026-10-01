@@ -108,6 +108,11 @@ export class Game {
       this.weaponSystem.currentWeapon.reserveAmmo
     );
 
+    const bossBug = this.environment.getBossBug();
+    if (bossBug) {
+      this.hud.updateBossHealth(bossBug.health, bossBug.maxHealth);
+    }
+
     // ── Player callbacks ─────────────────────────────────────────
     this.player.onShoot        = (d) => this.weaponSystem.handleFireInput(d);
     this.player.onReload       = ()  => this.weaponSystem.reload();
@@ -119,6 +124,37 @@ export class Game {
     this.player.position.copy(spawn);
     this.player.yaw = Math.PI;
     this.camera.position.copy(spawn);
+  }
+
+  resetGame() {
+    this.isVictory = false;
+    this.score = 0;
+    this.hud.updateScore(0);
+    this.hud.showVictory(false);
+
+    // Reset player position
+    const spawn = this.environment.getSpawnPoint();
+    this.player.position.copy(spawn);
+    this.player.yaw = Math.PI;
+    this.player.pitch = 0;
+    this.camera.position.copy(spawn);
+
+    // Reset Code Bug
+    const bossBug = this.environment.getBossBug();
+    if (bossBug) {
+      bossBug.reset();
+      this.hud.updateBossHealth(bossBug.health, bossBug.maxHealth);
+    }
+
+    // Reset weapon system ammo
+    if (this.weaponSystem) {
+      this.weaponSystem.weapons.forEach((w) => {
+        w.currentAmmo = w.maxAmmo;
+        w.reserveAmmo = w.initialReserve;
+      });
+      const currW = this.weaponSystem.currentWeapon;
+      this.hud.updateAmmo(currW.currentAmmo, currW.reserveAmmo);
+    }
   }
 
   start() {
@@ -192,10 +228,28 @@ export class Game {
     this.hud.showHitMarker();
 
     // Feed message
-    const labels = { 10: 'Hit', 20: 'Hit', 25: '⭐ Steel Hit', 8: 'Hit' };
-    this.hud.addFeedEntry(`+${points} ${labels[points] || 'Hit'}`);
+    const msg = target.userData.feedMsg || `+${points} CODE BUG HIT!`;
+    this.hud.addFeedEntry(`+${points}  ${msg}`);
 
-    target.userData.onHit?.();
+    target.userData.onHit?.(hitPoint);
     if (hitPoint) this.effects.spawnImpact(hitPoint, normal);
+
+    // Apply damage to Code Bug Boss
+    const bossBug = this.environment.getBossBug();
+    if (bossBug && !bossBug.isDead) {
+      const damage = points || 25;
+      const isKilled = bossBug.takeDamage(damage);
+      this.hud.updateBossHealth(bossBug.health, bossBug.maxHealth);
+
+      if (isKilled) {
+        this.hud.addFeedEntry('🏆 CODE BUG KILLED!');
+        if (document.pointerLockElement) {
+          document.exitPointerLock();
+        }
+        setTimeout(() => {
+          this.hud.showVictory(true, this.score);
+        }, 400);
+      }
+    }
   }
 }
